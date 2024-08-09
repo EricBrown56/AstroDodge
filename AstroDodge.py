@@ -69,7 +69,7 @@ while not game_over:
         if event.type == pygame.QUIT:
             game_over = True
     if speed_clock % 50 == 0:
-        enemy_speed += 1
+        enemy_speed += .5
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
