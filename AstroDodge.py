@@ -35,6 +35,7 @@ explosion_sound = pygame.mixer.Sound('./assets/explosion.wav')
 
 clock = pygame.time.Clock()
 game_over = False
+blast_in_motion = False
 speed_clock = 0
 
 def paused():
@@ -55,12 +56,7 @@ def paused():
         pygame.display.update()
         clock.tick(30)
 
-def blast():
-    global blast_pos
-    blast_pos = [player_pos[0], player_pos[1]]
-    screen.blit(blast_image, (blast_pos[0], blast_pos[1]))
-    pygame.display.update()
-    blaster_sound.play()
+
 
 # Game loop
 
@@ -85,10 +81,16 @@ while not game_over:
     elif keys[pygame.K_p]:
         paused()
     elif keys[pygame.K_SPACE]:
-        blast()
+        if not blast_in_motion:  # Only allow firing if no blast is currently in motion
+            blast_in_motion = True
+            blast_pos = [player_pos[0] + player_size[0] // 2 - blast_size[0] // 2, player_pos[1]]
+            blaster_sound.play()
+        
+     # Projectile movement
+    if blast_in_motion:
         blast_pos[1] -= blast_speed
         if blast_pos[1] < 0:
-            blast_pos = [player_pos[0], player_pos[1]]
+            blast_in_motion = False  # Reset when off-screen    
 
     # Update enemy position
     player_pos[0] = max(0, min(player_pos[0], screen_width - player_size[0]))
@@ -102,16 +104,19 @@ while not game_over:
 
     player_rect = pygame.Rect(player_pos[0], player_pos[1], player_size[0], player_size[1])
     enemy_rect = pygame.Rect(enemy_pos[0], enemy_pos[1], enemy_size[0], enemy_size[1])
-    blast_rect = pygame.Rect(blast_pos[0], blast_pos[1], blast_size[0], blast_size[1])
     
-
+    # Collision detection for projectile
     
+    if blast_in_motion:
+        blast_rect = pygame.Rect(blast_pos[0], blast_pos[1], blast_size[0], blast_size[1])
+        if blast_rect.colliderect(enemy_rect):
+            blast_in_motion = False
+            screen.blit(explode_image, (enemy_pos[0], enemy_pos[1]))
+            pygame.display.update()
+            explosion_sound.play()
+            pygame.time.wait(300)  # Delay for explosion visibility
+            enemy_pos = [random.randint(0, screen_width - enemy_size[0]), -enemy_size[1]]
 
-    if blast_rect.colliderect(enemy_rect):
-        enemy_pos = [random.randint(0, screen_width - enemy_size[0]), -enemy_size[1]]
-        screen.blit(explode_image, (enemy_pos[0], enemy_pos[1]))
-        pygame.display.update()
-        explosion_sound.play()
 
     if player_rect.colliderect(enemy_rect):
         game_over = True
@@ -121,6 +126,8 @@ while not game_over:
     screen.blit(bg, (0, 0))
     screen.blit(player_image, (player_pos[0], player_pos[1]))
     screen.blit(enemy_image, (enemy_pos[0], enemy_pos[1]))
+    if blast_in_motion:
+        screen.blit(blast_image, (blast_pos[0], blast_pos[1]))
     pygame.display.update()
 
     speed_clock += 1
