@@ -2,6 +2,7 @@ import pygame
 import random
 
 pygame.init()
+pygame.font.init()
 
 # Set up the display
 screen_width, screen_height = 640, 480
@@ -10,8 +11,8 @@ pygame.display.set_caption("AstroDodge")
 
 player_image_original = pygame.transform.scale(pygame.image.load("./assets/astronaut.png"),(100, 100))
 enemy_image = pygame.transform.scale(pygame.image.load("./assets/asteroid.png"),(50, 50))
-blast_image = pygame.transform.scale(pygame.image.load("./assets/blast.jpg"),(50, 50))
-explode_image = pygame.transform.scale(pygame.image.load("./assets/explode.png"),(50, 50))
+blast_image = pygame.transform.scale(pygame.image.load("./assets/blast.png"),(50, 50))
+explode_image = pygame.transform.scale(pygame.image.load("./assets/explode.png"),(75, 75))
 
 player_size = player_image_original.get_size()
 player_pos = [screen_width // 2, screen_height - player_size[1]]
@@ -37,6 +38,12 @@ clock = pygame.time.Clock()
 game_over = False
 blast_in_motion = False
 speed_clock = 0
+score_font = pygame.font.Font(None, 36)
+score_pos = [10, 10]
+score_increment = 10
+score = 0
+score_text = score_font.render(f'Score: {score}', True, (255, 0, 0))
+    
 
 def paused():
     pause = True
@@ -58,9 +65,14 @@ def paused():
 
 
 
+
+
+
+
 # Game loop
 
 while not game_over:
+   
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = True
@@ -106,6 +118,10 @@ while not game_over:
     enemy_rect = pygame.Rect(enemy_pos[0], enemy_pos[1], enemy_size[0], enemy_size[1])
     
     # Collision detection for projectile
+
+    
+    
+    
     
     if blast_in_motion:
         blast_rect = pygame.Rect(blast_pos[0], blast_pos[1], blast_size[0], blast_size[1])
@@ -114,20 +130,22 @@ while not game_over:
             screen.blit(explode_image, (enemy_pos[0], enemy_pos[1]))
             pygame.display.update()
             explosion_sound.play()
-            pygame.time.wait(300)  # Delay for explosion visibility
+            pygame.time.wait(100)  # Delay for explosion visibility
             enemy_pos = [random.randint(0, screen_width - enemy_size[0]), -enemy_size[1]]
+            score += score_increment
 
-
+   
     if player_rect.colliderect(enemy_rect):
         game_over = True
 
-
+    
     
     screen.blit(bg, (0, 0))
     screen.blit(player_image, (player_pos[0], player_pos[1]))
     screen.blit(enemy_image, (enemy_pos[0], enemy_pos[1]))
     if blast_in_motion:
         screen.blit(blast_image, (blast_pos[0], blast_pos[1]))
+    screen.blit(score_text, score_pos)
     pygame.display.update()
 
     speed_clock += 1
