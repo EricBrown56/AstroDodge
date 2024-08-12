@@ -4,6 +4,10 @@ import random
 pygame.init()
 pygame.font.init()
 
+score = 0
+score_increment = 10
+
+
 # Set up the display
 screen_width, screen_height = 640, 480
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -40,8 +44,6 @@ blast_in_motion = False
 speed_clock = 0
 score_font = pygame.font.Font(None, 36)
 score_pos = [10, 10]
-score_increment = 10
-score = 0
 score_text = score_font.render(f'Score: {score}', True, (255, 0, 0))
     
 
@@ -62,12 +64,6 @@ def paused():
         screen.blit(enemy_image, (enemy_pos[0], enemy_pos[1]))
         pygame.display.update()
         clock.tick(30)
-
-
-
-
-
-
 
 # Game loop
 
@@ -119,10 +115,6 @@ while not game_over:
     
     # Collision detection for projectile
 
-    
-    
-    
-    
     if blast_in_motion:
         blast_rect = pygame.Rect(blast_pos[0], blast_pos[1], blast_size[0], blast_size[1])
         if blast_rect.colliderect(enemy_rect):
