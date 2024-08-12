@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 pygame.init()
 pygame.font.init()
@@ -37,6 +38,7 @@ pygame.mixer.music.load('./assets/Glory.mp3')
 pygame.mixer.music.play(-1)
 blaster_sound = pygame.mixer.Sound('./assets/blaster.wav')
 explosion_sound = pygame.mixer.Sound('./assets/explosion.wav')
+death_sound = pygame.mixer.Sound('./assets/death.wav')
 
 clock = pygame.time.Clock()
 game_over = False
@@ -65,6 +67,39 @@ def paused():
         pygame.display.update()
         clock.tick(30)
 
+def updateFile():
+    f = open('scores.txt','r') # opens the file in read mode
+    file = f.readlines() # reads all the lines in as a list
+    last = int(file[0]) # gets the first line of the file
+
+    if last < int(score): # sees if the current score is greater than the previous best
+        f.close() # closes/saves the file
+        file = open('scores.txt', 'w') # reopens it in write mode
+        file.write(str(score)) # writes the best score
+        file.close() # closes/saves the file
+
+        return score
+               
+    return last
+
+def game_ov():
+    my_font = pygame.font.SysFont('times new roman', 30)
+    game_over_surface = my_font.render('YOU DIED, PRESS R TO RESTART', True, (255, 0, 0))
+    game_over_rect = game_over_surface.get_rect()
+    game_over_rect.midtop = (screen_width / 2, screen_height / 4)
+    screen.blit(game_over_surface, game_over_rect)
+    death_sound.play()
+    pygame.display.update()
+    time.sleep(6)
+    pygame.quit()
+
+def restart():
+    global game_over, score, enemy_speed
+    game_over = False
+    score = 0
+    enemy_speed = 5
+    return score
+    
 # Game loop
 
 while not game_over:
@@ -93,6 +128,8 @@ while not game_over:
             blast_in_motion = True
             blast_pos = [player_pos[0] + player_size[0] // 2 - blast_size[0] // 2, player_pos[1]]
             blaster_sound.play()
+    elif keys[pygame.K_r]:
+        restart()
         
      # Projectile movement
     if blast_in_motion:
@@ -128,6 +165,8 @@ while not game_over:
 
    
     if player_rect.colliderect(enemy_rect):
+        game_ov()
+        score = updateFile()
         game_over = True
 
     
