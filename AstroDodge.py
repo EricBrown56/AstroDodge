@@ -47,6 +47,7 @@ speed_clock = 0
 score_font = pygame.font.Font(None, 36)
 score_pos = [10, 10]
 score_text = score_font.render(f'Score: {score}', True, (255, 0, 0))
+
     
 
 def paused():
@@ -82,6 +83,11 @@ def updateFile():
                
     return last
 
+high_score = updateFile()
+high_score_font = pygame.font.Font(None, 36)
+high_score_pos = [420, 10]
+high_score_text = high_score_font.render(f'High Score: {high_score}', True, (255, 0, 0))
+
 def game_ov():
     my_font = pygame.font.SysFont('times new roman', 30)
     game_over_surface = my_font.render('YOU DIED, PRESS R TO RESTART', True, (255, 0, 0))
@@ -90,7 +96,7 @@ def game_ov():
     screen.blit(game_over_surface, game_over_rect)
     death_sound.play()
     pygame.display.update()
-    time.sleep(6)
+    time.sleep(5)
     pygame.quit()
 
 def restart():
@@ -177,6 +183,7 @@ while not game_over:
     if blast_in_motion:
         screen.blit(blast_image, (blast_pos[0], blast_pos[1]))
     screen.blit(score_text, score_pos)
+    screen.blit(high_score_text, high_score_pos)
     pygame.display.update()
 
     speed_clock += 1
